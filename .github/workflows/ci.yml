@@ -1,0 +1,60 @@
+name: DataGuard CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt pytest
+
+      - name: Run unit tests
+        run: |
+          cd $GITHUB_WORKSPACE
+          PYTHONPATH=server pytest tests/ -v --tb=short
+
+      - name: Run local validator
+        run: |
+          cd $GITHUB_WORKSPACE
+          PYTHONPATH=server python validate_local.py
+
+  docker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t dataguard:ci .
+
+      - name: Smoke test container
+        run: |
+          docker run -d --name dg -p 7860:7860 dataguard:ci
+          sleep 8
+          curl -sf http://localhost:7860/health
+          curl -sf -X POST http://localhost:7860/reset \
+               -H "Content-Type: application/json" -d '{"task":"easy"}' | python3 -c "
+          import sys, json
+          d = json.load(sys.stdin)
+          assert 'observation' in d, 'Missing observation in reset response'
+          print('Reset OK — task:', d['observation']['task_name'])
+          "
+          docker stop dg
