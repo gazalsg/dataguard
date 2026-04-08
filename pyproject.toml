@@ -7,7 +7,7 @@ name = "dataguard"
 version = "1.0.0"
 description = "DataGuard OpenEnv environment"
 requires-python = ">=3.10"
-authors = [{name = "GKK1"}]
+authors = [{ name = "GKK1" }]
 dependencies = [
   "pydantic",
   "fastapi",
@@ -15,8 +15,10 @@ dependencies = [
   "pandas",
   "numpy",
   "openai",
-  "requests"
+  "requests",
+  "python-multipart",
+  "openenv-core>=0.2.0"
 ]
 
 [project.scripts]
-server = "server.server:main"
+server = "server.app:main"
