@@ -12,8 +12,8 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from env import DataGuardEnv, StepResult
-from models import DataGuardAction
+from server.task.env import DataGuardEnv, StepResult
+from server.task.models import DataGuardAction
 
 # ---------------------------------------------------------------------------
 # App setup
