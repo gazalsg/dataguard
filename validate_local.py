@@ -188,8 +188,8 @@ def check_server(url: str):
 
     # Health
     try:
-        r = requests.get(f"{url}/health", timeout=10)
-        check(r.status_code == 200, "GET /health → 200", f"status={r.status_code}")
+        r = requests.get(f"{url}/", timeout=10)
+        check(r.status_code == 200, "GET / → 200", f"status={r.status_code}")
     except Exception as exc:
         check(False, "GET /health", str(exc))
         return

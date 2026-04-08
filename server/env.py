@@ -1,6 +1,18 @@
 """
 DataGuard — Core Environment
-Implements the OpenEnv API: reset() / step() / state()
+=============================
+This is the heart of the environment. It manages episode state, dispatches
+agent actions against the live DataFrame, and builds the observation the
+agent sees at each step.
+
+The design philosophy here is intentional constraint: the agent can only
+call actions from a fixed toolkit with enumerated arguments. No free-form
+pandas expressions, no arbitrary code execution. This makes the grader
+fully deterministic and removes the possibility of reward hacking through
+clever string manipulation.
+
+One environment instance per task is held in memory by the FastAPI server.
+State is reset on every reset() call — nothing persists between episodes.
 """
 
 from __future__ import annotations

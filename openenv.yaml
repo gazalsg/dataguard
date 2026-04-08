@@ -1,13 +1,14 @@
 name: dataguard
 version: "1.0.0"
 description: >
-  DataGuard is an RL environment where an agent acts as a Data Integrity Officer.
-  Given a corrupted CSV dataset and a schema specification, the agent must
-  select tool actions to clean and validate the data — fixing dtypes, formats,
-  duplicates, nulls, and unit inconsistencies — to maximise a deterministic
-  compliance score.
+  DataGuard puts an agent in the role of a Data Integrity Officer. It receives
+  a corrupted real-world dataset and a target schema, then must work through the
+  mess — wrong date formats, type mismatches, duplicate rows, null values, mixed
+  currencies — using a constrained set of data tools. Grading is fully
+  deterministic: a Python script checks each column against the schema and
+  returns a score. No LLM judge, no ambiguity. Just clean data or it isn't.
 
-author: "DataGuard Team"
+author: "GKK1"
 tags:
   - data-cleaning
   - data-engineering
@@ -17,38 +18,60 @@ tags:
 
 tasks:
   - name: easy
-    description: "10 rows — fix name casing (UPPERCASE → Title Case) and date format (MM/DD/YYYY → YYYY-MM-DD)"
+    description: >
+      A 10-row customer table with two classic export mistakes: names in ALL CAPS
+      instead of Title Case, and dates in MM/DD/YYYY instead of ISO 8601.
+      A warmup — but it establishes the pattern of inspect, act, validate.
     difficulty: easy
     max_steps: 6
     reward_range: [0.0, 1.0]
 
   - name: medium
-    description: "100 rows — remove duplicate rows, fill null emails, cast age column from float to int"
+    description: >
+      A 100-row user table from a botched database merge. Duplicate rows slipped
+      through, ~15% of emails are NULL, and the age column came out as float64.
+      The agent needs to decide the right order of operations — and learn that
+      order matters when nulls and duplicates interact.
     difficulty: medium
     max_steps: 10
     reward_range: [0.0, 1.0]
 
   - name: hard
-    description: "500 rows — convert mixed GBP/USD currency strings to USD floats, normalise 3 date formats, fix corrupted 8-char record IDs"
+    description: >
+      A 500-row sales table from a legacy system handoff. Prices are a mix of
+      GBP strings, USD strings, and bare floats. Dates appear in three different
+      formats in the same column. About 20% of record IDs are corrupted. The
+      GBP-to-USD exchange rate is hidden in the observation — the agent has to
+      find it and use it. Dropping bad rows is unavoidable, but dropping too
+      many triggers a retention penalty. Maximum achievable score is ~0.80.
     difficulty: hard
     max_steps: 18
     reward_range: [0.0, 1.0]
 
 observation_space:
   type: object
-  description: "Dataset summary: shape, per-column dtype/nulls/sample, schema requirements, available actions, reward so far, last action feedback"
+  description: >
+    A structured snapshot of the current dataset: shape, per-column dtype/null
+    counts/sample values, the target schema, available actions, cumulative reward
+    so far, and feedback from the last action. On the hard task, the exchange rate
+    is embedded in the schema hints.
 
 action_space:
   type: object
-  description: "Structured tool call — one of: fix_dtype, standardize_format, drop_duplicates, fill_nulls, convert_units, drop_rows, validate_schema"
+  description: >
+    One structured tool call per step, chosen from: fix_dtype, standardize_format,
+    drop_duplicates, fill_nulls, convert_units, drop_rows, or validate_schema.
+    Arguments are constrained to enums — no free-form expressions — to keep
+    grading deterministic and prevent reward hacking.
 
 reward:
   type: float
   range: [0.0, 1.0]
   description: >
-    Deterministic schema compliance score returned on validate_schema().
-    Partial progress signals are computed per column/issue class.
-    A row-retention penalty of up to -0.20 applies if >10% of valid rows are dropped.
+    Scored at episode end by a deterministic Python grader. Each issue class
+    (dtype, format, duplicates, nulls, units) contributes independently, so
+    partial fixes always earn partial credit. A row retention penalty of up to
+    -0.20 applies if the agent drops more than 10% of originally valid rows.
 
 endpoints:
   reset: POST /reset

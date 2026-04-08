@@ -1,6 +1,18 @@
 """
 DataGuard — Synthetic Dataset Generator
-Generates reproducible, seeded dirty datasets for each task difficulty.
+=========================================
+Generates reproducible dirty datasets for each task using a fixed seed.
+
+The datasets are synthetic but the errors are real — every issue injected
+here (wrong date formats, mixed currency strings, duplicate rows, null values,
+corrupted IDs) is something that actually happens when data moves between
+systems, gets exported from legacy tools, or passes through a poorly
+configured ETL pipeline.
+
+Using a fixed seed means the same dataset is generated every time for a
+given task, which is important for reproducible evaluation. The seed can
+be overridden for diversity in training, but the default (42) is what the
+hackathon graders will use.
 """
 
 from __future__ import annotations

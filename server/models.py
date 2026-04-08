@@ -1,6 +1,14 @@
 """
-DataGuard Environment — Pydantic Models
-Defines the typed Action, Observation, and Reward models for the OpenEnv spec.
+DataGuard — Pydantic Models
+=============================
+Typed models for the three things that flow through the environment:
+what the agent *does* (Action), what the agent *sees* (Observation),
+and what the environment *awards* (Reward).
+
+Action arguments are constrained to enums wherever possible. This was
+a deliberate choice — allowing free-form strings would make grading
+ambiguous and open the door to prompt-injection style exploits where
+a clever agent game the reward through unexpected input formats.
 """
 
 from __future__ import annotations

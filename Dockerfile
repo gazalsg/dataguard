@@ -24,4 +24,4 @@ EXPOSE 7860
 USER appuser
 
 # Start FastAPI server
-CMD ["python", "server/server.py"]
+CMD ["python", "server\server.py"]

@@ -1,6 +1,19 @@
 """
 DataGuard — Deterministic Grader
-All scoring is done programmatically — no LLM judge.
+==================================
+The grader is the source of truth. It takes the agent's current DataFrame,
+checks it column by column against the schema requirements, and returns a
+score between 0.0 and 1.0.
+
+There is no LLM involved here. No "did the agent do a good job?" judgment
+call. Either the date is in ISO 8601 format or it isn't. Either the email
+is non-null and valid or it isn't. This determinism is the whole point —
+it means the reward signal is consistent across runs, models, and seeds,
+which is what you need for meaningful RL training.
+
+The row retention penalty exists to prevent a degenerate solution: an agent
+that "cleans" a dataset by deleting everything. Real data engineering means
+preserving as much valid data as possible while removing only what's broken.
 """
 
 from __future__ import annotations
