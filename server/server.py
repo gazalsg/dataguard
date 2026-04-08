@@ -12,8 +12,8 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from server.task.env import DataGuardEnv, StepResult
-from server.task.models import DataGuardAction
+from server.env import DataGuardEnv, StepResult
+from server.models import DataGuardAction
 
 # ---------------------------------------------------------------------------
 # App setup
@@ -40,7 +40,6 @@ def _get_or_create_env(task: str) -> DataGuardEnv:
     if task not in _envs:
         _envs[task] = DataGuardEnv(task=task)
     return _envs[task]
-
 
 # ---------------------------------------------------------------------------
 # Request / Response schemas
