@@ -1,20 +1,21 @@
 """
 HuggingFace Spaces entry point.
-HF Spaces expects either app.py or a Dockerfile.
-This file lets the Space run without Docker by booting the FastAPI server directly.
+Runs the FastAPI server directly when Docker is not used.
 """
 import os
 import sys
 
+# Ensure the server package is importable when running from the repo root
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "server"))
 
 import uvicorn
-from server import app  # noqa: F401  (imported for HF Spaces direct-run mode)
+from server import app  # imported so HF Spaces can find `app`
 
 if __name__ == "__main__":
     uvicorn.run(
-        "server:app",
+        "server.app:app",
         host="0.0.0.0",
         port=int(os.getenv("PORT", 7860)),
         reload=False,
+        log_level="info",
     )
