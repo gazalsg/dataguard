@@ -1,13 +1,7 @@
 name: dataguard
 version: "1.0.0"
 description: >
-  DataGuard puts an agent in the role of a Data Integrity Officer. It receives
-  a corrupted real-world dataset and a target schema, then must work through the
-  mess — wrong date formats, type mismatches, duplicate rows, null values, mixed
-  currencies — using a constrained set of data tools. Grading is fully
-  deterministic: a Python script checks each column against the schema and
-  returns a score. No LLM judge, no ambiguity. Just clean data or it isn't.
-
+  DataGuard puts an agent in the role of a Data Integrity Officer...
 author: "GKK1"
 tags:
   - data-cleaning
@@ -17,33 +11,26 @@ tags:
   - openenv
 
 tasks:
-  - name: easy
+  - id: task_easy
+    name: easy
     description: >
-      A 10-row customer table with two classic export mistakes: names in ALL CAPS
-      instead of Title Case, and dates in MM/DD/YYYY instead of ISO 8601.
-      A warmup — but it establishes the pattern of inspect, act, validate.
+      A 10-row customer table...
     difficulty: easy
     max_steps: 6
     reward_range: [0.0, 1.0]
 
-  - name: medium
+  - id: task_medium
+    name: medium
     description: >
-      A 100-row user table from a botched database merge. Duplicate rows slipped
-      through, ~15% of emails are NULL, and the age column came out as float64.
-      The agent needs to decide the right order of operations — and learn that
-      order matters when nulls and duplicates interact.
+      A 100-row user table...
     difficulty: medium
     max_steps: 10
     reward_range: [0.0, 1.0]
 
-  - name: hard
+  - id: task_hard
+    name: hard
     description: >
-      A 500-row sales table from a legacy system handoff. Prices are a mix of
-      GBP strings, USD strings, and bare floats. Dates appear in three different
-      formats in the same column. About 20% of record IDs are corrupted. The
-      GBP-to-USD exchange rate is hidden in the observation — the agent has to
-      find it and use it. Dropping bad rows is unavoidable, but dropping too
-      many triggers a retention penalty. Maximum achievable score is ~0.80.
+      A 500-row sales table...
     difficulty: hard
     max_steps: 18
     reward_range: [0.0, 1.0]
@@ -51,30 +38,29 @@ tasks:
 observation_space:
   type: object
   description: >
-    A structured snapshot of the current dataset: shape, per-column dtype/null
-    counts/sample values, the target schema, available actions, cumulative reward
-    so far, and feedback from the last action. On the hard task, the exchange rate
-    is embedded in the schema hints.
+    Structured snapshot of dataset...
 
 action_space:
   type: object
   description: >
-    One structured tool call per step, chosen from: fix_dtype, standardize_format,
-    drop_duplicates, fill_nulls, convert_units, drop_rows, or validate_schema.
-    Arguments are constrained to enums — no free-form expressions — to keep
-    grading deterministic and prevent reward hacking.
+    One structured tool call per step...
 
-reward:
+reward_space:
   type: float
   range: [0.0, 1.0]
   description: >
-    Scored at episode end by a deterministic Python grader. Each issue class
-    (dtype, format, duplicates, nulls, units) contributes independently, so
-    partial fixes always earn partial credit. A row retention penalty of up to
-    -0.20 applies if the agent drops more than 10% of originally valid rows.
+    Deterministic Python grader, partial credit, retention penalty.
 
 endpoints:
-  reset: POST /reset
-  step: POST /step
-  state: POST /state
-  tasks: GET  /tasks
+  - name: reset
+    method: POST
+    path: /reset
+  - name: step
+    method: POST
+    path: /step
+  - name: state
+    method: POST
+    path: /state
+  - name: tasks
+    method: GET
+    path: /tasks
