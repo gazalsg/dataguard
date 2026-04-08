@@ -25,9 +25,9 @@ from typing import Any, Dict, List, Optional, Tuple
 import pandas as pd
 import numpy as np
 
-from dataset_gen import generate_easy, generate_medium, generate_hard
-from grader import grade
-from models import (
+from server.dataset_gen import generate_easy, generate_medium, generate_hard
+from server.grader import grade
+from server.models import (
     ActionType,
     ColumnSummary,
     DataGuardAction,

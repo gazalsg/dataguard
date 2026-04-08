@@ -24,7 +24,7 @@ from typing import Any, Dict, Tuple
 import pandas as pd
 import numpy as np
 
-from models import DataGuardReward, RewardBreakdown
+from server.models import DataGuardReward, RewardBreakdown
 
 
 # ---------------------------------------------------------------------------
