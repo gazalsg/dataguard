@@ -1,19 +1,18 @@
 """
-HuggingFace Spaces entry point.
-Runs the FastAPI server directly when Docker is not used.
+HuggingFace Spaces / Docker entry point.
+Starts the DataGuard FastAPI server on port 7860.
 """
 import os
 import sys
 
-# Ensure the server package is importable when running from the repo root
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "server"))
+# Make sure the repo root is on the path so `server.*` imports work
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import uvicorn
-from server import app  # imported so HF Spaces can find `app`
 
 if __name__ == "__main__":
     uvicorn.run(
-        "server.app:app",
+        "server.server:app",
         host="0.0.0.0",
         port=int(os.getenv("PORT", 7860)),
         reload=False,

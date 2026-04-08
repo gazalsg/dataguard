@@ -14,8 +14,12 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy source
+# Copy ALL source files
 COPY server/ ./server/
+COPY app.py .
+COPY inference.py .
+COPY openenv.yaml .
+COPY pyproject.toml .
 
 # HF Spaces expects the app to listen on port 7860
 ENV PORT=7860
@@ -23,5 +27,5 @@ EXPOSE 7860
 
 USER appuser
 
-# Start FastAPI server
-CMD ["python", "server/server.py"]
+# Start FastAPI server via app.py
+CMD ["python", "app.py"]
