@@ -89,7 +89,7 @@ def grade_easy(df: pd.DataFrame, original_row_count: int) -> DataGuardReward:
         frac_iso = df["signup_date"].apply(_is_iso_date).mean()
         bd.format_fixes += round(0.5 * frac_iso, 4)
 
-    total = min(bd.format_fixes, 1.0)
+    total = min(bd.format_fixes, 0.99)
     msg   = f"Name={bd.format_fixes:.2f} (combined with date score)"
     return DataGuardReward(total=total, breakdown=bd, message=msg)
 
@@ -135,7 +135,7 @@ def grade_medium(df: pd.DataFrame, original_row_count: int) -> DataGuardReward:
         except Exception:
             msgs.append("✗ Age check failed")
 
-    total = min(bd.dtype_fixes + bd.null_handling + bd.duplicate_removal, 1.0)
+    total = min(bd.dtype_fixes + bd.null_handling + bd.duplicate_removal, 0.99)
     return DataGuardReward(total=total, breakdown=bd, message=" | ".join(msgs))
 
 
@@ -182,7 +182,7 @@ def grade_hard(df: pd.DataFrame, original_row_count: int) -> DataGuardReward:
         + bd.schema_validation
         + bd.row_retention_penalty
     )
-    total = round(max(0.0, min(raw_total, 1.0)), 4)
+    total = round(max(0.01, min(raw_total, 0.99)), 4)
     return DataGuardReward(total=total, breakdown=bd, message=" | ".join(msgs))
 
 
